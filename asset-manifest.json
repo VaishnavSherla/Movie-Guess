@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/Movie-Guess/static/css/main.94b7a862.css",
+    "main.js": "/Movie-Guess/static/js/main.3e52f409.js",
+    "static/js/453.5d2a9783.chunk.js": "/Movie-Guess/static/js/453.5d2a9783.chunk.js",
+    "service-worker.js": "/Movie-Guess/service-worker.js",
+    "index.html": "/Movie-Guess/index.html",
+    "main.94b7a862.css.map": "/Movie-Guess/static/css/main.94b7a862.css.map",
+    "main.3e52f409.js.map": "/Movie-Guess/static/js/main.3e52f409.js.map",
+    "453.5d2a9783.chunk.js.map": "/Movie-Guess/static/js/453.5d2a9783.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.94b7a862.css",
+    "static/js/main.3e52f409.js"
+  ]
+}
