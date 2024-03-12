@@ -19,8 +19,10 @@ function App() {
         }
         return savedMode ? JSON.parse(savedMode) : true;
     });
-    const inputRefs = useRef([]);
 
+    const [movieData, setMovieData] = useState('');
+    const inputRefs = useRef([]);
+    
     useEffect(() => {
         fetchMovie();
     }, []);
@@ -42,7 +44,8 @@ function App() {
                 throw new Error('Failed to fetch movie');
             }
             const data = await response.json();
-            const randomMovie = data.movie.toUpperCase();
+            setMovieData(data);
+            const randomMovie = data.Movie.toUpperCase();
             setMovieName(randomMovie);
             const randomizedOutput = getRandomOutput(randomMovie).split('');
             setRandomAns(randomizedOutput);
@@ -78,10 +81,10 @@ function App() {
 
     const checkAnswer = () => {
         if (!disableInput) {
-            const userAnswerString = userAnswer.join('');
-            const movieNameWithSpaces = movieName.replace(/\s/g, '•');
-            if (userAnswerString === movieNameWithSpaces) {
+            let userAnswerString = userAnswer.join('').replace(/•/g, ' ');
+            if (userAnswerString === movieName) {
                 setMessage('Congratulations! Your answer is correct.');
+                setDisableInput(true);
             } else {
                 setMessage('Sorry! Your answer is incorrect. Please try again.');
             }
@@ -102,9 +105,46 @@ function App() {
         setMessage('');
     };
 
+    const letterReveal = () => {
+        if (!disableInput) {
+          const newUserAnswer = [...userAnswer];
+          let count = 0;
+          while (newUserAnswer[count] === movieName[count]) {
+            if (count === movieName.length - 1 && movieName[count] !== ' ') {
+              setMessage('Correct Answer!');
+              setDisableInput(true);
+              break;
+            } else {
+              count++;
+            }
+          }
+          newUserAnswer[count] = movieName[count];
+          setUserAnswer(newUserAnswer);
+          setMessage('Letter Revealed!');
+        } else {
+          setMessage('Input has Disabled!');
+        }
+    };
+
     const toggleDarkMode = () => {
         setDarkMode(!darkMode);
     };
+
+    const revealHint = () => {
+      let hintMessage = '';
+      
+      if (movieData.Description && movieData.Description.length > 0) {
+          const randomDescriptionIndex = Math.floor(Math.random() * movieData.Description.length);
+          hintMessage += `Description: ${movieData.Description[randomDescriptionIndex]}. \n`;
+      }
+
+      if (movieData.Cast && movieData.Cast.length > 0) {
+          const {Cast} = movieData;
+          const selectedCast = Cast.slice(0, 3).join(', ');
+          hintMessage += `Cast: ${selectedCast}.`;
+      }
+      setMessage(hintMessage);
+  };
 
     return (
         <div className={`App ${darkMode ? 'dark-mode' : ''}`} style={{ minHeight: '100vh', minWidth: '100vw', backgroundColor: darkMode ? '#333' : '#fff', color: darkMode ? '#fff' : '#000', padding: '20px' }}>
@@ -137,28 +177,34 @@ function App() {
                 </div>
               )}
               <div className="buttons flex justify-center space-x-4">
-                <button className={`border ${darkMode ? 'border-white' : 'border-gray-400'} bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300 `} onClick={handleReset} disabled={disableInput}>
-                  Reset
-                </button>
-                <button className={`border ${darkMode ? 'border-white' : 'border-gray-400'} bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300 `} onClick={checkAnswer} disabled={disableInput}>
-                  Check Answer
-                </button>
-                <button className={`border ${darkMode ? 'border-white' : 'border-gray-400'} bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300 `} onClick={fetchMovie}>
-                  Next Movie
-                </button>
-                <button className={`border ${darkMode ? 'border-white' : 'border-gray-400'} bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300 `} onClick={handleShowAnswer}>
-                  Show Answer
-                </button>
-                <button className={`border ${darkMode ? 'border-white' : 'border-gray-400'} bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300 `} onClick={toggleDarkMode}>
-                  {darkMode ? 'Light Mode' : 'Dark Mode'}
-                </button>
+  <button className={`border ${darkMode ? 'border-white' : 'border-gray-400'} bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300`} onClick={fetchMovie}>
+    Next Movie
+  </button>
+  <button className={`border ${darkMode ? 'border-white' : 'border-gray-400'} bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300`} onClick={handleReset} disabled={disableInput}>
+    Reset
+  </button>
+  <button className={`border ${darkMode ? 'border-white' : 'border-gray-400'} bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300`} onClick={checkAnswer} disabled={disableInput}>
+    Check Answer
+  </button>
+  <button className={`border ${darkMode ? 'border-white' : 'border-gray-400'} bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300`} onClick={handleShowAnswer}>
+    Show Answer
+  </button>
+  <button className={`border ${darkMode ? 'border-white' : 'border-gray-400'} bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300`} onClick={letterReveal}>
+    Reveal Letter
+  </button>
+  <button className={`border ${darkMode ? 'border-white' : 'border-gray-400'} bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300`} onClick={revealHint}>
+    Hint
+  </button>
+  <button className={`border ${darkMode ? 'border-white' : 'border-gray-400'} bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300`} onClick={toggleDarkMode}>
+    {darkMode ? 'Light Mode' : 'Dark Mode'}
+  </button>
+
               </div>
               {message && <Message message={message} />}
             </div>
           )}
         </div>
       );
-      
 }
 
 export default App;
